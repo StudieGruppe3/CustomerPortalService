@@ -1,0 +1,68 @@
+@page "/Order"
+@using System.ComponentModel.DataAnnotations
+<h3>Place an order!</h3>
+<EditForm Model="order" OnValidSubmit="SubmitOrder">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div>
+        <label for="name">Name:</label>
+        <InputText id="name" @bind-Value="order.Customer" class="form-control" />
+    </div>
+    
+    <div>
+        <label for="product">Product:</label>
+        <InputSelect id="product" @bind-Value="order.ProductId" class="form-control">
+            <option value="">Select a product</option>
+            @foreach (var product in products)
+            {
+                <option value="@product.ProductId">@product.Name - $@product.Price</option>
+            }
+        </InputSelect>
+    </div>
+    
+    <button type="submit" class="btn btn-primary mt-3">Submit Order</button>
+</EditForm>
+
+@if (submitted)
+{
+    <p class="text-success">Thank you, @order.Customer! Your order for a @products.FirstOrDefault(p => p.ProductId == order.ProductId)?.Name has been placed.</p>
+}
+
+@code {
+    private PlacedOrder order = new PlacedOrder();
+    private bool submitted = false;
+    
+    private void SubmitOrder()
+    {
+        order.Product = products.FirstOrDefault(p => p.ProductId == order.ProductId);
+        submitted = true;
+    }
+
+    public class PlacedOrder
+    {
+        public int OrderId { get; set; }
+        public int CustomerId { get; set; }
+        public string Customer { get; set; }
+        public int ProductId { get; set; }
+        public Product Product { get; set; }
+        public DateTime Date { get; set; }
+        public int Amount { get; set; }
+    }
+
+    public class Product
+    {
+        public int ProductId { get; set; }
+        public string Name { get; set; }
+        public int Price { get; set; }
+    }
+    
+    private List<Product> products = new List<Product>
+    {
+        new Product { ProductId = 1, Name = "Laptop", Price = 1200 },
+        new Product { ProductId = 2, Name = "Phone", Price = 800 },
+        new Product { ProductId = 3, Name = "Tablet", Price = 500 }
+    };
+}
+
+
